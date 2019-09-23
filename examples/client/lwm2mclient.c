@@ -791,6 +791,7 @@ void print_usage(void)
     fprintf(stdout, "  -p PORT\tSet the port of the LWM2M Server to connect to. Default: "LWM2M_STANDARD_PORT_STR"\r\n");
     fprintf(stdout, "  -4\t\tUse IPv4 connection. Default: IPv6 connection\r\n");
     fprintf(stdout, "  -t TIME\tSet the lifetime of the Client. Default: 300\r\n");
+    fprintf(stdout, "  -q\t\tQueue Mode (b=UQ). lwm2m_client use (b=U) by default\r\n");
     fprintf(stdout, "  -b\t\tBootstrap requested.\r\n");
     fprintf(stdout, "  -c\t\tChange battery level over time.\r\n");
 #ifdef WITH_TINYDTLS
@@ -812,6 +813,7 @@ int main(int argc, char *argv[])
     char * name = "testlwm2mclient";
     int lifetime = 300;
     int batterylevelchanging = 0;
+    int queue_mode = 0;
     time_t reboot_time = 0;
     int opt;
     bool bootstrapRequested = false;
@@ -881,6 +883,9 @@ int main(int argc, char *argv[])
             break;
         case 'c':
             batterylevelchanging = 1;
+            break;
+        case 'q':
+            queue_mode = 1;
             break;
         case 't':
             opt++;
@@ -1033,7 +1038,7 @@ int main(int argc, char *argv[])
     }
     data.securityObjP = objArray[0];
 
-    objArray[1] = get_server_object(serverId, "U", lifetime, false);
+    objArray[1] = get_server_object(serverId, (queue_mode ? "UQ" : "U"), lifetime, false);
     if (NULL == objArray[1])
     {
         fprintf(stderr, "Failed to create server object\r\n");
